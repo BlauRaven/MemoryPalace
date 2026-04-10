@@ -53,25 +53,55 @@
         width: 100%;
         animation: fadeIn 2s ease-out;
       }
-      #storyText {
+      #chatbox {
         position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.8);
+        top: 0;
+        right: 0;
+        width: 35%;
+        height: 100%;
+        background: rgba(10, 10, 10, 0.88);
         color: #ffffff;
-        padding: 15px 20px;
-        border-radius: 8px;
-        font-family: Georgia, serif;
-        font-size: 16px;
-        line-height: 1.6;
-        z-index: 5;
-        max-height: 150px;
-        overflow-y: auto;
-        display: none;
+        display: flex;
+        flex-direction: column;
+        z-index: 20;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(6px);
       }
-      #storyText.active {
-        display: block;
+      #chatbox.active {
+        transform: translateX(0);
+      }
+      #chatbox-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        font-family: 'Georgia', serif;
+        font-size: 0.85em;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+      }
+      #chatbox-close {
+        cursor: pointer;
+        font-size: 1.4em;
+        color: rgba(255,255,255,0.6);
+        background: none;
+        border: none;
+        line-height: 1;
+        padding: 0;
+      }
+      #chatbox-close:hover {
+        color: #fff;
+      }
+      #chatbox-body {
+        padding: 28px 24px;
+        font-family: 'Georgia', serif;
+        font-size: 1em;
+        line-height: 1.8;
+        overflow-y: auto;
+        flex: 1;
       }
     </style>
   </head>
@@ -80,7 +110,13 @@
       <h1>Memory Palace</h1>
     </div>
     <div id="map"></div>
-    <div id="storyText"></div>
+    <div id="chatbox">
+      <div id="chatbox-header">
+        <span>Memory</span>
+        <button id="chatbox-close">&#x2715;</button>
+      </div>
+      <div id="chatbox-body"></div>
+    </div>
 
     <script>
       async function initMap() {
@@ -144,20 +180,21 @@
             });
 
             marker.addListener("click", () => {
-              const storyEl = document.getElementById("storyText");
-              storyEl.textContent = comment;
-              storyEl.classList.add("active");
+              document.getElementById("chatbox-body").textContent = comment;
+              document.getElementById("chatbox").classList.add("active");
+              // Pan so dot is centred in left 65% of screen
+              const mapDiv = document.getElementById("map");
+              const offsetX = mapDiv.offsetWidth * 0.175; // shift right by half of chatbox width
+              map.panBy(offsetX, 0);
               map.panTo({ lat, lng: lon });
-              map.setZoom(3);
+              map.panBy(-offsetX, 0);
             });
           });
         })
         .catch(err => console.error("Error loading CSV:", err));
 
-      document.getElementById("zoomWorld").addEventListener("click", () => {
-        map.setCenter({ lat: 20, lng: 0 });
-        map.setZoom(2);
-        document.getElementById("storyText").classList.remove("active");
+      document.getElementById("chatbox-close").addEventListener("click", () => {
+        document.getElementById("chatbox").classList.remove("active");
       });
     }
 
