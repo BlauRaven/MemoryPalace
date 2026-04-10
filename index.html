@@ -100,7 +100,7 @@
         styles: [
           { elementType: "labels", stylers: [{ visibility: "off" }] },
           { elementType: "geometry", stylers: [{ color: "#C47E96" }] },
-          { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f1cba4" }] },
+          { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#feead5" }] },
           { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#f7d46d" }] },
           { featureType: "poi", stylers: [{ visibility: "off" }] },
           { featureType: "road", elementType: "geometry", stylers: [{ color: "#d49aac" }] },
@@ -150,7 +150,7 @@
               storyEl.textContent = comment;
               storyEl.classList.add("active");
               map.panTo({ lat, lng: lon });
-              map.setZoom(6);
+              map.setZoom(3);
             });
           });
         })
