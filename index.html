@@ -123,42 +123,6 @@
 
       const infoWindow = new google.maps.InfoWindow();
 
-      // Smooth fractional zoom with easing
-      let currentZoom = map.getZoom();
-      let targetZoom = currentZoom;
-      let animFrameId = null;
-
-      function easeZoom() {
-        const diff = targetZoom - currentZoom;
-        if (Math.abs(diff) < 0.005) {
-          currentZoom = targetZoom;
-          map.setZoom(currentZoom);
-          animFrameId = null;
-          return;
-        }
-        currentZoom += diff * 0.08;
-        map.setZoom(currentZoom);
-        animFrameId = requestAnimationFrame(easeZoom);
-      }
-
-      const mapEl = document.getElementById("map");
-
-      mapEl.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        // Use actual deltaY for smooth touchpad pinch; clamp per-event
-        const delta = -e.deltaY * 0.002;
-        targetZoom = Math.min(Math.max(targetZoom + delta, 2), 20);
-        if (!animFrameId) animFrameId = requestAnimationFrame(easeZoom);
-      }, { passive: false });
-
-      // Sync targetZoom when map zoom changes from other sources (e.g. dblclick)
-      map.addListener("zoom_changed", () => {
-        if (!animFrameId) {
-          currentZoom = map.getZoom();
-          targetZoom = currentZoom;
-        }
-      });
-
       // Load CSV data and create markers
       fetch("melbourne_cultural_dataset.csv")
         .then(response => response.text())
