@@ -53,60 +53,22 @@
         width: 100%;
         animation: fadeIn 2s ease-out;
       }
-      #chatbox {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 35%;
-        height: 100%;
-        background: rgba(10, 10, 10, 0.88);
-        color: #ffffff;
-        display: flex;
-        flex-direction: column;
-        z-index: 20;
-        transform: translateX(100%);
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(6px);
+      .gm-style-iw-c {
+        border-radius: 14px !important;
+        padding: 0 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
       }
-      #chatbox.active {
-        transform: translateX(0);
+      .gm-style-iw-d {
+        overflow: auto !important;
+        padding: 0 !important;
       }
-      #chatbox-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 18px 20px 14px;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
+      .info-content {
         font-family: 'Georgia', serif;
-        font-size: 0.85em;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.5);
-      }
-      #chatbox-close {
-        cursor: pointer;
-        font-size: 1.4em;
-        color: rgba(255,255,255,0.6);
-        background: none;
-        border: none;
-        line-height: 1;
-        padding: 0;
-      }
-      #chatbox-close:hover {
-        color: #fff;
-      }
-      #chatbox-body {
-        padding: 28px 24px;
-        font-family: 'Georgia', serif;
-        font-size: 1em;
-        line-height: 1.8;
-        overflow-y: auto;
-        flex: 1;
-        display: none;
-        text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0px -2px 0 #000, 0px 2px 0 #000, -2px 0px 0 #000, 2px 0px 0 #000;
-      }
-      #storyText.active {
-        display: block;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        padding: 16px 20px;
+        max-width: 360px;
       }
     </style>
   </head>
@@ -115,13 +77,6 @@
       <h1>Memory Palace</h1>
     </div>
     <div id="map"></div>
-    <div id="chatbox">
-      <div id="chatbox-header">
-        <span>Memory</span>
-        <button id="chatbox-close">&#x2715;</button>
-      </div>
-      <div id="chatbox-body"></div>
-    </div>
 
     <script>
       async function initMap() {
@@ -131,6 +86,7 @@
         map = new Map(document.getElementById("map"), {
         center: { lat: 20, lng: 0 },
         zoom: 2,
+        minZoom: 2,
         disableDefaultUI: true,
         gestureHandling: "greedy",
         restriction: {
@@ -159,6 +115,20 @@
         ]
       });
 
+      const infoWindow = new google.maps.InfoWindow();
+
+      // Smooth scroll zoom
+      let zoomTarget = map.getZoom();
+      document.getElementById("map").addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const delta = -Math.sign(e.deltaY) * 0.35;
+        zoomTarget = Math.min(Math.max(zoomTarget + delta, 2), 20);
+        map.setZoom(zoomTarget);
+      }, { passive: false });
+      map.addListener("zoom_changed", () => {
+        zoomTarget = map.getZoom();
+      });
+
       // Load CSV data and create markers
       fetch("melbourne_cultural_dataset.csv")
         .then(response => response.text())
@@ -170,37 +140,26 @@
             const values = line.split(',');
             const lat = parseFloat(values[0]);
             const lon = parseFloat(values[1]);
-            const comment = values[3]; // comment_message column
+            const comment = values.slice(3).join(',').replace(/^"|"$/g, ''); // comment_message column
             
             const marker = new google.maps.Marker({
               map,
               position: { lat, lng: lon },
               icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 3,
-                fillColor: '#000000',
-                fillOpacity: 1,
-                strokeWeight: 0
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="%23111111"/></svg>'),
+                scaledSize: new google.maps.Size(24, 36),
+                anchor: new google.maps.Point(12, 36)
               }
             });
 
             marker.addListener("click", () => {
-              document.getElementById("chatbox-body").textContent = comment;
-              document.getElementById("chatbox").classList.add("active");
-              // Pan so dot is centred in left 65% of screen
-              const mapDiv = document.getElementById("map");
-              const offsetX = mapDiv.offsetWidth * 0.175; // shift right by half of chatbox width
-              map.panBy(offsetX, 0);
+              infoWindow.setContent('<div class="info-content">' + comment + '</div>');
+              infoWindow.open(map, marker);
               map.panTo({ lat, lng: lon });
-              map.panBy(-offsetX, 0);
             });
           });
         })
         .catch(err => console.error("Error loading CSV:", err));
-
-      document.getElementById("chatbox-close").addEventListener("click", () => {
-        document.getElementById("chatbox").classList.remove("active");
-      });
     }
 
     window.initMap = initMap;
