@@ -53,6 +53,26 @@
         width: 100%;
         animation: fadeIn 2s ease-out;
       }
+      #storyText {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #ffffff;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-family: Georgia, serif;
+        font-size: 16px;
+        line-height: 1.6;
+        z-index: 5;
+        max-height: 150px;
+        overflow-y: auto;
+        display: none;
+      }
+      #storyText.active {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -60,6 +80,7 @@
       <h1>Memory Palace</h1>
     </div>
     <div id="map"></div>
+    <div id="storyText"></div>
 
     <script>
       async function initMap() {
@@ -98,31 +119,47 @@
         ]
       });
 
-      stories.forEach((story) => {
-        const pin = new PinElement({
-          background: "#111111",
-          borderColor: "#111111",
-          glyphColor: "#111111",
-          scale: 0.95
-        });
+      // Load CSV data and create markers
+      fetch("melbourne_cultural_dataset.csv")
+        .then(response => response.text())
+        .then(csvText => {
+          const lines = csvText.trim().split('\n');
+          const headers = lines[0].split(',');
+          
+          lines.slice(1).forEach(line => {
+            const values = line.split(',');
+            const lat = parseFloat(values[0]);
+            const lon = parseFloat(values[1]);
+            const comment = values[3]; // comment_message column
+            
+            const pin = new PinElement({
+              background: "#111111",
+              borderColor: "#111111",
+              glyphColor: "#111111",
+              scale: 0.95
+            });
 
-        const marker = new AdvancedMarkerElement({
-          map,
-          position: story.position,
-          content: pin.element
-        });
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: { lat, lng: lon },
+              content: pin.element
+            });
 
-        marker.addListener("click", () => {
-          document.getElementById("storyText").textContent = story.text;
-          map.panTo(story.position);
-          map.setZoom(6);
-        });
-      });
+            marker.addListener("click", () => {
+              const storyEl = document.getElementById("storyText");
+              storyEl.textContent = comment;
+              storyEl.classList.add("active");
+              map.panTo({ lat, lng: lon });
+              map.setZoom(6);
+            });
+          });
+        })
+        .catch(err => console.error("Error loading CSV:", err));
 
       document.getElementById("zoomWorld").addEventListener("click", () => {
         map.setCenter({ lat: 20, lng: 0 });
         map.setZoom(2);
-        document.getElementById("storyText").textContent = "Click a pin to show a short memory here.";
+        document.getElementById("storyText").classList.remove("active");
       });
     }
 
