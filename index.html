@@ -15,10 +15,12 @@
 
     <script>
       async function initMap() {
+        const position = { lat: -37.8136, lng: 144.9631 }; // Melbourne
         const { Map } = await google.maps.importLibrary("maps");
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
         const map = new Map(document.getElementById("map"), {
+          center: position,
           zoom: 12,
           mapId: "YOUR_MAP_ID"
         });
