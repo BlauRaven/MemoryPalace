@@ -132,17 +132,13 @@
             const lon = parseFloat(values[1]);
             const comment = values[3]; // comment_message column
             
-            const pin = new PinElement({
-              background: "#111111",
-              borderColor: "#111111",
-              glyphColor: "#111111",
-              scale: 0.95
-            });
+            const dot = document.createElement("div");
+            dot.style.cssText = "width:6px;height:6px;background:#000;border-radius:50%;";
 
             const marker = new AdvancedMarkerElement({
               map,
               position: { lat, lng: lon },
-              content: pin.element
+              content: dot
             });
 
             marker.addListener("click", () => {
