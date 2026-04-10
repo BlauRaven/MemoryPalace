@@ -3,6 +3,14 @@
   <head>
     <title>Memory Palace</title>
     <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
       html, body {
         height: 100%;
         margin: 0;
@@ -29,6 +37,7 @@
       #map {
         height: 100%;
         width: 100%;
+        animation: fadeIn 2s ease-out;
       }
     </style>
   </head>
