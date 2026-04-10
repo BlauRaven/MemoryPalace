@@ -156,6 +156,27 @@
               infoWindow.setContent('<div class="info-content">' + comment + '</div>');
               infoWindow.open(map, marker);
               map.panTo({ lat, lng: lon });
+              
+              // Smooth zoom animation
+              const targetZoom = 5;
+              const currentZoom = map.getZoom();
+              const duration = 500; // milliseconds
+              const startTime = Date.now();
+              
+              const easeInOutQuad = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+              
+              const animateZoom = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutQuad(progress);
+                const newZoom = currentZoom + (targetZoom - currentZoom) * eased;
+                map.setZoom(newZoom);
+                
+                if (progress < 1) {
+                  requestAnimationFrame(animateZoom);
+                }
+              };
+              animateZoom();
             });
           });
         })
