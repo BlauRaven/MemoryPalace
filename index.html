@@ -216,7 +216,6 @@
             marker.addListener("click", () => {
               infoWindow.setContent('<div class="info-content">' + comment + '</div>');
               infoWindow.open(map, marker);
-              map.panTo({ lat, lng: lon });
               
               // Smooth zoom animation
               const targetZoom = 5;
