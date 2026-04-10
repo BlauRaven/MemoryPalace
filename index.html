@@ -31,17 +31,17 @@
         width: 100%;
         top: 0;
         left: 0;
-        background: linear-gradient(135deg, rgba(200, 150, 220, 0.9) 0%, rgba(180, 120, 210, 0.9) 100%);
+        background: #000000;
         border-radius: 8px 45px 12px 40px;
         z-index: -1;
         clip-path: url(#brush-clip);
-        box-shadow: 0 6px 28px rgba(165, 100, 200, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.4);
-        filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.15));
+        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        filter: drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.3));
       }
       .brush-wrap h1 {
         text-align: center;
         font-family: 'Georgia', 'Garamond', serif;
-        color: #3d2645;
+        color: #ffffff;
         margin: 0;
         padding: 15px 40px;
         font-size: 2.5em;
@@ -73,17 +73,17 @@
         disableDefaultUI: true,
         gestureHandling: "greedy",
         styles: [
-            { elementType: "geometry", stylers: [{ color: "#e7d8a6" }] },
-            { elementType: "labels.text.fill", stylers: [{ color: "#5b4a2f" }] },
-            { elementType: "labels.text.stroke", stylers: [{ color: "#e7d8a6" }] },
-            { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#b79d63" }] },
-            { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e7d8a6" }] },
-            { featureType: "poi", elementType: "geometry", stylers: [{ color: "#d9c58f" }] },
-            { featureType: "road", elementType: "geometry", stylers: [{ color: "#f4ecd1" }] },
-            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#b79d63" }] },
-            { featureType: "transit", elementType: "geometry", stylers: [{ color: "#cfb97c" }] },
-            { featureType: "water", elementType: "geometry", stylers: [{ color: "#cbbd8b" }] }
-            ]
+          { elementType: "geometry", stylers: [{ color: "#e7d8a6" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#5b4a2f" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#e7d8a6" }] },
+          { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#b79d63" }] },
+          { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e7d8a6" }] },
+          { featureType: "poi", elementType: "geometry", stylers: [{ color: "#d9c58f" }] },
+          { featureType: "road", elementType: "geometry", stylers: [{ color: "#f4ecd1" }] },
+          { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#b79d63" }] },
+          { featureType: "transit", elementType: "geometry", stylers: [{ color: "#cfb97c" }] },
+          { featureType: "water", elementType: "geometry", stylers: [{ color: "#cbbd8b" }] }
+        ]
       });
 
       stories.forEach((story) => {
