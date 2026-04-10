@@ -91,8 +91,10 @@
         center: { lat: 20, lng: 0 },
         zoom: 2,
         minZoom: 2,
+        maxZoom: 20,
         disableDefaultUI: true,
-        gestureHandling: "greedy",
+        gestureHandling: "none",
+        isFractionalZoomEnabled: true,
         restriction: {
           latLngBounds: { north: 85, south: -85, west: -180, east: 180 },
           strictBounds: true
@@ -121,17 +123,70 @@
 
       const infoWindow = new google.maps.InfoWindow();
 
-      // Smooth scroll zoom
-      let zoomTarget = map.getZoom();
-      document.getElementById("map").addEventListener("wheel", (e) => {
+      // Buttery smooth fractional zoom with easing
+      let currentZoom = map.getZoom();
+      let targetZoom = currentZoom;
+      let animFrameId = null;
+      let isDragging = false;
+      let dragStart = null;
+      let lastMouse = null;
+
+      function easeZoom() {
+        const diff = targetZoom - currentZoom;
+        if (Math.abs(diff) < 0.001) {
+          currentZoom = targetZoom;
+          map.setZoom(currentZoom);
+          animFrameId = null;
+          return;
+        }
+        currentZoom += diff * 0.12;
+        map.setZoom(currentZoom);
+        animFrameId = requestAnimationFrame(easeZoom);
+      }
+
+      const mapEl = document.getElementById("map");
+
+      mapEl.addEventListener("wheel", (e) => {
         e.preventDefault();
-        const delta = -Math.sign(e.deltaY) * 0.35;
-        zoomTarget = Math.min(Math.max(zoomTarget + delta, 2), 20);
-        map.setZoom(zoomTarget);
+        const delta = -Math.sign(e.deltaY) * 0.25;
+        targetZoom = Math.min(Math.max(targetZoom + delta, 2), 20);
+        if (!animFrameId) animFrameId = requestAnimationFrame(easeZoom);
       }, { passive: false });
-      map.addListener("zoom_changed", () => {
-        zoomTarget = map.getZoom();
+
+      // Manual drag panning
+      mapEl.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        dragStart = { x: e.clientX, y: e.clientY };
+        lastMouse = { x: e.clientX, y: e.clientY };
+        mapEl.style.cursor = "grabbing";
       });
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const dx = lastMouse.x - e.clientX;
+        const dy = lastMouse.y - e.clientY;
+        map.panBy(dx, dy);
+        lastMouse = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+        mapEl.style.cursor = "";
+      });
+
+      // Touch support for panning
+      mapEl.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      }, { passive: true });
+      mapEl.addEventListener("touchmove", (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const dx = lastMouse.x - e.touches[0].clientX;
+        const dy = lastMouse.y - e.touches[0].clientY;
+        map.panBy(dx, dy);
+        lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }, { passive: true });
+      mapEl.addEventListener("touchend", () => { isDragging = false; });
 
       // Load CSV data and create markers
       fetch("melbourne_cultural_dataset.csv")
