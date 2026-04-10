@@ -86,7 +86,6 @@
       async function initMap() {
         const position = { lat: -37.8136, lng: 144.9631 }; // Melbourne
         const { Map } = await google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
         map = new Map(document.getElementById("map"), {
         center: { lat: 20, lng: 0 },
@@ -132,13 +131,16 @@
             const lon = parseFloat(values[1]);
             const comment = values[3]; // comment_message column
             
-            const dot = document.createElement("div");
-            dot.style.cssText = "width:6px;height:6px;background:#000;border-radius:50%;";
-
-            const marker = new AdvancedMarkerElement({
+            const marker = new google.maps.Marker({
               map,
               position: { lat, lng: lon },
-              content: dot
+              icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 3,
+                fillColor: '#000000',
+                fillOpacity: 1,
+                strokeWeight: 0
+              }
             });
 
             marker.addListener("click", () => {
