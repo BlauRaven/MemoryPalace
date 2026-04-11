@@ -54,7 +54,7 @@ function openExperienceForm() {
   
   isSelectingLocation = true;
   const mapElement = document.getElementById('map');
-  mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%223%22 fill=%22%23000%22/%3E%3C/svg%3E") 16 16, auto';
+  mapElement.style.cursor = 'url(./locate-svgrepo-com.svg) 16 16, auto';
 
   const addBtn = document.getElementById('add-experience-btn');
   addBtn.style.display = 'none';
@@ -153,12 +153,12 @@ async function submitExperience() {
       timestamp: new Date()
     });
 
-    alert('Experience added successfully!');
+    alert('Memory added successfully!');
     closeExperienceForm();
     location.reload();
   } catch (error) {
-    console.error('Error adding experience:', error);
-    alert('Error adding experience: ' + error.message);
+    console.error('Error adding memory:', error);
+    alert('Error adding memory: ' + error.message);
   }
 }
 
@@ -237,11 +237,9 @@ async function likeExperience(experienceId) {
     await updateDoc(docRef, {
       likes: increment(1)
     });
-    alert('Experience liked!');
-    location.reload();
   } catch (error) {
-    console.error('Error liking experience:', error);
-    alert('Error liking experience: ' + error.message);
+    console.error('Error liking memory:', error);
+    alert('Error liking memory: ' + error.message);
   }
 }
 
