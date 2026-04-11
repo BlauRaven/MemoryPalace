@@ -2,6 +2,23 @@
 <html>
   <head>
     <title>Memory Palace</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyCsTuKPVbof6T_DyjaORdyC6jqsT4y9R-A",
+        authDomain: "memory-palace-7b6b3.firebaseapp.com",
+        projectId: "memory-palace-7b6b3",
+        storageBucket: "memory-palace-7b6b3.firebasestorage.app",
+        messagingSenderId: "367702600588",
+        appId: "1:367702600588:web:c3bac7f621356c0abf04a9"
+      };
+      
+      const app = initializeApp(firebaseConfig);
+      window.db = getFirestore(app);
+    </script>
     <style>
       @keyframes fadeIn {
         from {
@@ -98,6 +115,86 @@
       #street-view-close {
         position: absolute;
         top: 16px;
+      }
+      #add-experience-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 5;
+        padding: 12px 20px;
+        background: #000000;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: 'Georgia', serif;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      #add-experience-btn:hover {
+        background: #333333;
+      }
+      #experience-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+      }
+      #experience-form {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        font-family: 'Georgia', serif;
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: 'Georgia', serif;
+        box-sizing: border-box;
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      #form-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      #form-buttons button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'Georgia', serif;
+        font-size: 14px;
+      }
+      #submit-btn {
+        background: #000000;
+        color: white;
+      }
+      #cancel-btn {
+        background: #ccc;
+        color: black;
+      }
         right: 16px;
         z-index: 101;
         width: 40px;
@@ -127,6 +224,45 @@
     <div id="street-view-overlay">
       <button id="street-view-close" onclick="closeStreetView()">&times;</button>
       <iframe id="street-view-iframe"></iframe>
+    </div>
+
+    <button id="add-experience-btn" onclick="openExperienceForm()">+ Add Experience</button>
+
+    <!-- Experience Form Modal -->
+    <div id="experience-modal">
+      <form id="experience-form">
+        <h2>Share Your Memory</h2>
+        
+        <div class="form-group">
+          <label for="exp-lat">Latitude:</label>
+          <input type="number" id="exp-lat" step="0.0001" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exp-lng">Longitude:</label>
+          <input type="number" id="exp-lng" step="0.0001" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exp-year">Year:</label>
+          <input type="number" id="exp-year" min="2000" max="2100" value="2026" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exp-month">Month:</label>
+          <input type="number" id="exp-month" min="1" max="12" value="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="exp-comment">Comment:</label>
+          <textarea id="exp-comment" required></textarea>
+        </div>
+
+        <div id="form-buttons">
+          <button type="button" id="cancel-btn" onclick="closeExperienceForm()">Cancel</button>
+          <button type="button" id="submit-btn" onclick="submitExperience()">Submit</button>
+        </div>
+      </form>
     </div>
 
     <script src="app.js"></script>

@@ -1,10 +1,11 @@
+import { collection, getDocs, addDoc, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 const MAPILLARY_TOKEN = 'MLY|25932380179773764|6461ad3ee4bbaa749ea11493fdbe3bb2';
 
 async function fetchMapillaryImage(lat, lng, year, month) {
   const delta = 0.001;
   const bbox = `${lng - delta},${lat - delta},${lng + delta},${lat + delta}`;
 
-  // Compute ±6 month window, handling year rollover
   let startMonth = month - 6;
   let startYear = year;
   if (startMonth < 1) { startMonth += 12; startYear--; }
@@ -41,6 +42,143 @@ function closeStreetView() {
   const iframe = document.getElementById('street-view-iframe');
   overlay.style.display = 'none';
   iframe.src = '';
+}
+
+function openExperienceForm() {
+  const modal = document.getElementById('experience-modal');
+  modal.style.display = 'flex';
+}
+
+function closeExperienceForm() {
+  const modal = document.getElementById('experience-modal');
+  modal.style.display = 'none';
+  document.getElementById('experience-form').reset();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('experience-modal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeExperienceForm();
+      }
+    });
+  }
+});
+
+async function submitExperience() {
+  const lat = parseFloat(document.getElementById('exp-lat').value);
+  const lng = parseFloat(document.getElementById('exp-lng').value);
+  const year = parseInt(document.getElementById('exp-year').value);
+  const month = parseInt(document.getElementById('exp-month').value);
+  const comment = document.getElementById('exp-comment').value;
+
+  if (!lat || !lng || !year || !month || !comment) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  try {
+    const docRef = await addDoc(collection(window.db, 'experiences'), {
+      lat,
+      lng,
+      year,
+      month,
+      comment,
+      likes: 0,
+      timestamp: new Date()
+    });
+
+    alert('Experience added successfully!');
+    closeExperienceForm();
+    location.reload();
+  } catch (error) {
+    console.error('Error adding experience:', error);
+    alert('Error adding experience: ' + error.message);
+  }
+}
+
+async function loadExperiencesFromFirestore(map, infoWindow) {
+  try {
+    const querySnapshot = await getDocs(collection(window.db, 'experiences'));
+    const experiences = [];
+    querySnapshot.forEach((doc) => {
+      experiences.push({ ...doc.data(), id: doc.id });
+    });
+
+    console.log(`Loaded ${experiences.length} experiences from Firestore`);
+
+    experiences.forEach(exp => {
+      const marker = new google.maps.Marker({
+        map,
+        position: { lat: exp.lat, lng: exp.lng },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 3,
+          fillColor: '#000000',
+          fillOpacity: 1,
+          strokeWeight: 0
+        }
+      });
+
+      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">👍 Like (${exp.likes || 0})</button>`;
+
+      marker.addListener('click', async () => {
+        let imageHtml = '';
+        const mapillaryImage = await fetchMapillaryImage(exp.lat, exp.lng, exp.year, exp.month);
+        if (mapillaryImage) {
+          imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
+        }
+
+        infoWindow.setContent(
+          `<div class="info-content">
+            ${imageHtml}
+            <strong>${exp.year}-${String(exp.month).padStart(2, '0')}</strong><br>
+            <em>${exp.comment}</em><br>
+            ${likeButton}
+          </div>`
+        );
+        infoWindow.open(map, marker);
+      });
+
+      marker.addListener("mouseover", () => {
+        marker.setIcon({
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 3,
+          fillColor: '#87CEEB',
+          fillOpacity: 1,
+          strokeWeight: 0
+        });
+      });
+
+      marker.addListener("mouseout", () => {
+        marker.setIcon({
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 3,
+          fillColor: '#000000',
+          fillOpacity: 1,
+          strokeWeight: 0
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Error loading experiences from Firestore:', error);
+    alert('Error loading experiences: ' + error.message);
+  }
+}
+
+async function likeExperience(experienceId) {
+  try {
+    const docRef = doc(window.db, 'experiences', experienceId);
+    await updateDoc(docRef, {
+      likes: increment(1)
+    });
+    alert('Experience liked!');
+    location.reload();
+  } catch (error) {
+    console.error('Error liking experience:', error);
+    alert('Error liking experience: ' + error.message);
+  }
 }
 
 async function initMap() {
@@ -82,89 +220,14 @@ async function initMap() {
 
   const infoWindow = new google.maps.InfoWindow();
 
-  fetch("experiences.json")
-    .then(response => response.json())
-    .then(experiences => {
-      experiences.forEach(exp => {
-        const marker = new google.maps.Marker({
-          map,
-          position: { lat: exp.lat, lng: exp.lng },
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 3,
-            fillColor: '#000000',
-            fillOpacity: 1,
-            strokeWeight: 0
-          }
-        });
-
-        marker.addListener("click", () => {
-          const monthNames = ["", "January", "February", "March", "April", "May", "June", 
-            "July", "August", "September", "October", "November", "December"];
-          const monthYear = `${monthNames[exp.month]} ${exp.year}`;
-
-          const buildContent = (visitBtn) => `
-            <div style="
-              padding: 12px 16px;
-              font-family: sans-serif;
-              min-width: 160px;
-              border-left: 4px solid #4285F4;
-            ">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px;">
-                ${monthYear}
-              </div>
-              <div style="font-size: 14px; color: #222; line-height: 1.4;">
-                ${exp.comment}
-              </div>
-              ${visitBtn}
-              <div style="margin-top: 8px; font-size: 12px; color: #888;">
-                ♥ ${exp.likes.toLocaleString()} likes
-              </div>
-            </div>`;
-
-          infoWindow.setContent(buildContent(''));
-          infoWindow.open(map, marker);
-
-          fetchMapillaryImage(exp.lat, exp.lng, exp.year, exp.month).then(img => {
-            if (img) {
-              const btn = `<button onclick="openStreetView('${img.id}')" style="
-                margin-top: 8px;
-                padding: 5px 14px;
-                background: #4285F4;
-                color: #fff;
-                border: none;
-                border-radius: 6px;
-                font-size: 12px;
-                cursor: pointer;
-                font-family: sans-serif;
-              ">Visit</button>`;
-              infoWindow.setContent(buildContent(btn));
-            }
-          });
-        });
-
-        marker.addListener("mouseover", () => {
-          marker.setIcon({
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 3,
-            fillColor: '#87CEEB',
-            fillOpacity: 1,
-            strokeWeight: 0
-          });
-        });
-
-        marker.addListener("mouseout", () => {
-          marker.setIcon({
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 3,
-            fillColor: '#000000',
-            fillOpacity: 1,
-            strokeWeight: 0
-          });
-        });
-      });
-    })
-    .catch(err => console.error("Error loading experiences:", err));
+  // Load experiences from Firestore
+  await loadExperiencesFromFirestore(map, infoWindow);
 }
 
 window.initMap = initMap;
+window.openStreetView = openStreetView;
+window.closeStreetView = closeStreetView;
+window.openExperienceForm = openExperienceForm;
+window.closeExperienceForm = closeExperienceForm;
+window.submitExperience = submitExperience;
+window.likeExperience = likeExperience;
