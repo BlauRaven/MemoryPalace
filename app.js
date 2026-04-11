@@ -5,6 +5,7 @@ const MAPILLARY_TOKEN = 'MLY|25932380179773764|6461ad3ee4bbaa749ea11493fdbe3bb2'
 // Global state for location selection mode
 let isSelectingLocation = false;
 let currentMapForSelection = null;
+let mapClickListener = null;
 
 async function fetchMapillaryImage(lat, lng, year, month) {
   const delta = 0.001;
@@ -49,6 +50,8 @@ function closeStreetView() {
 }
 
 function openExperienceForm() {
+  if (!currentMapForSelection) return;
+  
   isSelectingLocation = true;
   const mapElement = document.getElementById('map');
   mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%223%22 fill=%22%23000%22/%3E%3C/svg%3E") 16 16, auto';
@@ -56,8 +59,13 @@ function openExperienceForm() {
   const addBtn = document.getElementById('add-experience-btn');
   addBtn.style.display = 'none';
 
+  // Remove any existing listener
+  if (mapClickListener) {
+    google.maps.event.removeListener(mapClickListener);
+  }
+  
   // Set up map click listener for location selection
-  const mapClickListener = currentMapForSelection.addListener('click', handleMapClick);
+  mapClickListener = currentMapForSelection.addListener('click', handleMapClick);
 }
 
 function handleMapClick(event) {
@@ -75,6 +83,12 @@ function handleMapClick(event) {
   mapElement.style.cursor = 'default';
   const addBtn = document.getElementById('add-experience-btn');
   addBtn.style.display = 'block';
+
+  // Remove the click listener
+  if (mapClickListener) {
+    google.maps.event.removeListener(mapClickListener);
+    mapClickListener = null;
+  }
 
   // End selection mode
   isSelectingLocation = false;
