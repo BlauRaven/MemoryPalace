@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Migrate to Firestore</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #000;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #333;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    #progress {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsTuKPVbof6T_DyjaORdyC6jqsT4y9R-A",
+      authDomain: "memory-palace-7b6b3.firebaseapp.com",
+      projectId: "memory-palace-7b6b3",
+      storageBucket: "memory-palace-7b6b3.firebasestorage.app",
+      messagingSenderId: "367702600588",
+      appId: "1:367702600588:web:c3bac7f621356c0abf04a9"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    window.migrateData = async () => {
+      const statusDiv = document.getElementById('status');
+      const progressDiv = document.getElementById('progress');
+      
+      try {
+        statusDiv.className = 'status info';
+        statusDiv.textContent = 'Loading experiences.json...';
+        
+        const response = await fetch('experiences.json');
+        if (!response.ok) {
+          throw new Error('Could not load experiences.json');
+        }
+        
+        const experiences = await response.json();
+        console.log(`Found ${experiences.length} experiences to migrate`);
+        
+        statusDiv.className = 'status info';
+        statusDiv.textContent = `Starting migration of ${experiences.length} experiences...`;
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (let i = 0; i < experiences.length; i++) {
+          try {
+            const exp = experiences[i];
+            
+            await addDoc(collection(db, 'experiences'), {
+              lat: exp.lat,
+              lng: exp.lng,
+              year: exp.year,
+              month: exp.month,
+              comment: exp.comment,
+              likes: exp.likes || 0,
+              timestamp: new Date()
+            });
+            
+            successCount++;
+            
+            if ((i + 1) % 50 === 0) {
+              progressDiv.textContent = `Progress: ${i + 1}/${experiences.length}`;
+            }
+          } catch (err) {
+            console.error(`Error adding experience ${i}:`, err);
+            errorCount++;
+          }
+        }
+        
+        if (errorCount === 0) {
+          statusDiv.className = 'status success';
+          statusDiv.textContent = `✓ Successfully migrated all ${successCount} experiences to Firestore!`;
+        } else {
+          statusDiv.className = 'status success';
+          statusDiv.textContent = `✓ Migration complete: ${successCount} succeeded, ${errorCount} failed`;
+        }
+        
+        progressDiv.textContent = '';
+        
+      } catch (error) {
+        console.error('Migration error:', error);
+        statusDiv.className = 'status error';
+        statusDiv.textContent = `✗ Error: ${error.message}`;
+        progressDiv.textContent = '';
+      }
+    };
+  </script>
+
+  <div class="container">
+    <h1>🔄 Migrate Experiences to Firestore</h1>
+    
+    <p>This tool will migrate all your experiences from <code>experiences.json</code> to Firebase Cloud Firestore.</p>
+    
+    <p><strong>Before you start:</strong></p>
+    <ul>
+      <li>Make sure your Firestore database is created in Firebase Console</li>
+      <li>Security rules are set to allow read/write access</li>
+      <li>Your experiences.json file is in the same directory</li>
+    </ul>
+    
+    <button onclick="migrateData()">Start Migration</button>
+    
+    <div id="progress"></div>
+    <div id="status"></div>
+    
+    <hr style="margin-top: 30px; margin-bottom: 20px;">
+    
+    <p style="color: #666; font-size: 14px;">
+      After migration completes successfully, your experiences will be available in Firestore. 
+      You can then use the main <code>index.html</code> to view and add new experiences!
+    </p>
+  </div>
+</body>
+</html>
