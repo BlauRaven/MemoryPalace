@@ -54,7 +54,11 @@ async function initMap() {
         });
 
         marker.addListener("click", () => {
-          infoWindow.setContent('<div class="info-content">' + exp.comment + '</div>');
+          const monthNames = ["", "January", "February", "March", "April", "May", "June", 
+            "July", "August", "September", "October", "November", "December"];
+          const monthYear = `${monthNames[exp.month]} ${exp.year}`;
+          const content = `<div class="info-content"><strong>${monthYear}</strong><br>${exp.comment}</div>`;
+          infoWindow.setContent(content);
           infoWindow.open(map, marker);
         });
       });
