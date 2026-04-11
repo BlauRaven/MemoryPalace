@@ -195,7 +195,7 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
           imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
         }
 
-        const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">♥ (${exp.likes || 0})</button>`;
+        const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: white; color: #000; border: 2px solid #000; padding: 8px 12px; border-radius: 20px; cursor: pointer; margin-top: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">♡ ${exp.likes || 0}</button>`;
 
         infoWindow.setContent(
           `<div class="info-content">
@@ -277,7 +277,7 @@ async function likeExperience(experienceId) {
         imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
       }
       
-      const updatedLikeButton = `<button onclick="likeExperience('${currentExperience.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;"> Like (${currentExperience.likes || 0})</button>`;
+      const updatedLikeButton = `<button onclick="likeExperience('${currentExperience.id}')" style="background: white; color: #000; border: 2px solid #000; padding: 8px 12px; border-radius: 20px; cursor: pointer; margin-top: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">♡ ${currentExperience.likes || 0}</button>`;
       
       currentInfoWindow.setContent(
         `<div class="info-content">
