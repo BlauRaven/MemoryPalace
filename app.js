@@ -54,7 +54,7 @@ function openExperienceForm() {
   
   isSelectingLocation = true;
   const mapElement = document.getElementById('map');
-  mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%223%22 fill=%22%23000%22/%3E%3C/svg%3E") 16 16, auto';
+  mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg width=%2732%27 height=%2732%27 viewBox=%270 0 512 512%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cline x1=%27256%27 y1=%2796%27 x2=%27256%27 y2=%2756%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%27256%27 y1=%27456%27 x2=%27256%27 y2=%27416%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cpath d=%27M256,112A144,144,0,1,0,400,256,144,144,0,0,0,256,112Z%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%27416%27 y1=%27256%27 x2=%27456%27 y2=%27256%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%2756%27 y1=%27256%27 x2=%2796%27 y2=%27256%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3C/svg%3E") 16 16, auto';
 
   const addBtn = document.getElementById('add-experience-btn');
   addBtn.style.display = 'none';
