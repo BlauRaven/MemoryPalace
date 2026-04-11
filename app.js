@@ -57,9 +57,42 @@ async function initMap() {
           const monthNames = ["", "January", "February", "March", "April", "May", "June", 
             "July", "August", "September", "October", "November", "December"];
           const monthYear = `${monthNames[exp.month]} ${exp.year}`;
-          const content = `<div class="info-content"><strong>${monthYear}</strong><br>${exp.comment}</div>`;
+          const content = `
+            <div style="
+              padding: 12px 16px;
+              font-family: sans-serif;
+              min-width: 160px;
+              border-left: 4px solid #4285F4;
+            ">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px;">
+                ${monthYear}
+              </div>
+              <div style="font-size: 14px; color: #222; line-height: 1.4;">
+                ${exp.comment}
+              </div>
+            </div>`;
           infoWindow.setContent(content);
           infoWindow.open(map, marker);
+        });
+
+        marker.addListener("mouseover", () => {
+          marker.setIcon({
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 3,
+            fillColor: '#87CEEB',
+            fillOpacity: 1,
+            strokeWeight: 0
+          });
+        });
+
+        marker.addListener("mouseout", () => {
+          marker.setIcon({
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 3,
+            fillColor: '#000000',
+            fillOpacity: 1,
+            strokeWeight: 0
+          });
         });
       });
     })
