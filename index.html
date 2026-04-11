@@ -170,6 +170,10 @@
         font-family: 'Georgia', serif;
         box-sizing: border-box;
       }
+      .form-group input[readonly] {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+      }
       .form-group textarea {
         resize: vertical;
         min-height: 80px;
@@ -238,12 +242,12 @@
         
         <div class="form-group">
           <label for="exp-lat">Latitude:</label>
-          <input type="number" id="exp-lat" step="0.0001" required>
+          <input type="number" id="exp-lat" step="0.0001" readonly>
         </div>
 
         <div class="form-group">
           <label for="exp-lng">Longitude:</label>
-          <input type="number" id="exp-lng" step="0.0001" required>
+          <input type="number" id="exp-lng" step="0.0001" readonly>
         </div>
 
         <div class="form-group">

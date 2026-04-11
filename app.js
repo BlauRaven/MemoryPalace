@@ -2,6 +2,10 @@ import { collection, getDocs, addDoc, updateDoc, doc, increment } from "https://
 
 const MAPILLARY_TOKEN = 'MLY|25932380179773764|6461ad3ee4bbaa749ea11493fdbe3bb2';
 
+// Global state for location selection mode
+let isSelectingLocation = false;
+let currentMapForSelection = null;
+
 async function fetchMapillaryImage(lat, lng, year, month) {
   const delta = 0.001;
   const bbox = `${lng - delta},${lat - delta},${lng + delta},${lat + delta}`;
@@ -45,6 +49,37 @@ function closeStreetView() {
 }
 
 function openExperienceForm() {
+  isSelectingLocation = true;
+  const mapElement = document.getElementById('map');
+  mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%2214%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3CCircle cx=%2216%22 cy=%2216%22 r=%223%22 fill=%22%23000%22/%3E%3C/svg%3E") 16 16, auto';
+
+  const addBtn = document.getElementById('add-experience-btn');
+  addBtn.style.display = 'none';
+
+  // Set up map click listener for location selection
+  const mapClickListener = currentMapForSelection.addListener('click', handleMapClick);
+}
+
+function handleMapClick(event) {
+  if (!isSelectingLocation) return;
+
+  const lat = event.latLng.lat();
+  const lng = event.latLng.lng();
+
+  // Populate the form with selected coordinates
+  document.getElementById('exp-lat').value = lat.toFixed(6);
+  document.getElementById('exp-lng').value = lng.toFixed(6);
+
+  // Restore cursor and button
+  const mapElement = document.getElementById('map');
+  mapElement.style.cursor = 'default';
+  const addBtn = document.getElementById('add-experience-btn');
+  addBtn.style.display = 'block';
+
+  // End selection mode
+  isSelectingLocation = false;
+
+  // Show the form modal
   const modal = document.getElementById('experience-modal');
   modal.style.display = 'flex';
 }
@@ -53,6 +88,15 @@ function closeExperienceForm() {
   const modal = document.getElementById('experience-modal');
   modal.style.display = 'none';
   document.getElementById('experience-form').reset();
+
+  // If still in selection mode, exit it
+  if (isSelectingLocation) {
+    isSelectingLocation = false;
+    const mapElement = document.getElementById('map');
+    mapElement.style.cursor = 'default';
+    const addBtn = document.getElementById('add-experience-btn');
+    addBtn.style.display = 'block';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -218,6 +262,9 @@ async function initMap() {
     ]
   });
 
+  // Store map reference for location selection
+  currentMapForSelection = map;
+
   const infoWindow = new google.maps.InfoWindow();
 
   // Load experiences from Firestore
@@ -231,3 +278,4 @@ window.openExperienceForm = openExperienceForm;
 window.closeExperienceForm = closeExperienceForm;
 window.submitExperience = submitExperience;
 window.likeExperience = likeExperience;
+window.handleMapClick = handleMapClick;
