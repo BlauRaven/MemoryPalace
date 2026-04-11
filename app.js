@@ -195,7 +195,7 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
           imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
         }
 
-        const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: white; color: #000; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; margin-top: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">♡ ${exp.likes || 0}</button>`;
+        const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: white !important; color: #000 !important; border: none !important; outline: none !important; box-shadow: none !important; padding: 8px 12px !important; border-radius: 20px !important; cursor: pointer !important; margin-top: 8px !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;">♡ ${exp.likes || 0}</button>`;
 
         infoWindow.setContent(
           `<div class="info-content">
@@ -277,7 +277,7 @@ async function likeExperience(experienceId) {
         imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
       }
       
-      const updatedLikeButton = `<button onclick="likeExperience('${currentExperience.id}')" style="background: white; color: #000; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; margin-top: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">♡ ${currentExperience.likes || 0}</button>`;
+      const updatedLikeButton = `<button onclick="likeExperience('${currentExperience.id}')" style="background: white !important; color: #000 !important; border: none !important; outline: none !important; box-shadow: none !important; padding: 8px 12px !important; border-radius: 20px !important; cursor: pointer !important; margin-top: 8px !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;">♡ ${currentExperience.likes || 0}</button>`;
       
       currentInfoWindow.setContent(
         `<div class="info-content">
