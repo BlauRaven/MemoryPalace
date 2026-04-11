@@ -110,6 +110,12 @@ function closeExperienceForm() {
     mapElement.style.cursor = 'default';
     const addBtn = document.getElementById('add-experience-btn');
     addBtn.style.display = 'block';
+    
+    // Remove the click listener if still active
+    if (mapClickListener) {
+      google.maps.event.removeListener(mapClickListener);
+      mapClickListener = null;
+    }
   }
 }
 
