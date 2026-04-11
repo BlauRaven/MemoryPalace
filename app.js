@@ -153,12 +153,12 @@ async function submitExperience() {
       timestamp: new Date()
     });
 
-    alert('Experience added successfully!');
+    alert('Memory added successfully!');
     closeExperienceForm();
     location.reload();
   } catch (error) {
-    console.error('Error adding experience:', error);
-    alert('Error adding experience: ' + error.message);
+    console.error('Error adding memory:', error);
+    alert('Error adding memory: ' + error.message);
   }
 }
 
@@ -185,7 +185,7 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
         }
       });
 
-      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">👍 Like (${exp.likes || 0})</button>`;
+      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;"> Like (${exp.likes || 0})</button>`;
 
       marker.addListener('click', async () => {
         let imageHtml = '';
@@ -237,11 +237,9 @@ async function likeExperience(experienceId) {
     await updateDoc(docRef, {
       likes: increment(1)
     });
-    alert('Experience liked!');
-    location.reload();
   } catch (error) {
-    console.error('Error liking experience:', error);
-    alert('Error liking experience: ' + error.message);
+    console.error('Error liking memory:', error);
+    alert('Error liking memory: ' + error.message);
   }
 }
 
