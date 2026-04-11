@@ -54,7 +54,11 @@ function openExperienceForm() {
   
   isSelectingLocation = true;
   const mapElement = document.getElementById('map');
-  mapElement.style.cursor = 'url("data:image/svg+xml;charset=UTF-8,%3Csvg width=%2732%27 height=%2732%27 viewBox=%270 0 512 512%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cline x1=%27256%27 y1=%2796%27 x2=%27256%27 y2=%2756%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%27256%27 y1=%27456%27 x2=%27256%27 y2=%27416%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cpath d=%27M256,112A144,144,0,1,0,400,256,144,144,0,0,0,256,112Z%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%27416%27 y1=%27256%27 x2=%27456%27 y2=%27256%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3Cline x1=%2756%27 y1=%27256%27 x2=%2796%27 y2=%27256%27 style=%27fill:none;stroke:%23000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px%27/%3E%3C/svg%3E") 16 16, auto';
+  
+  // Create a proper SVG data URL for the cursor
+  const svgString = `<svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><line x1="256" y1="96" x2="256" y2="56" style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/><line x1="256" y1="456" x2="256" y2="416" style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/><path d="M256,112A144,144,0,1,0,400,256,144,144,0,0,0,256,112Z" style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/><line x1="416" y1="256" x2="456" y2="256" style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/><line x1="56" y1="256" x2="96" y2="256" style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg>`;
+  const encodedSvg = encodeURIComponent(svgString);
+  mapElement.style.cursor = `url('data:image/svg+xml;charset=utf-8,${encodedSvg}') 16 16, auto`;
 
   const addBtn = document.getElementById('add-experience-btn');
   addBtn.style.display = 'none';
