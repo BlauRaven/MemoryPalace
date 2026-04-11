@@ -6,6 +6,9 @@ const MAPILLARY_TOKEN = 'MLY|25932380179773764|6461ad3ee4bbaa749ea11493fdbe3bb2'
 let isSelectingLocation = false;
 let currentMapForSelection = null;
 let mapClickListener = null;
+let currentInfoWindow = null;
+let currentMarker = null;
+let currentExperience = null;
 
 async function fetchMapillaryImage(lat, lng, year, month) {
   const delta = 0.001;
@@ -185,7 +188,7 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
         }
       });
 
-      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">♥ (${exp.likes || 0})</button>`;
+      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;"> Like (${exp.likes || 0})</button>`;
 
       marker.addListener('click', async () => {
         let imageHtml = '';
@@ -193,6 +196,8 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
         if (mapillaryImage) {
           imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
         }
+
+        const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">♥ (${exp.likes || 0})</button>`;
 
         infoWindow.setContent(
           `<div class="info-content">
@@ -203,6 +208,11 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
           </div>`
         );
         infoWindow.open(map, marker);
+        
+        // Store current marker, info window, and experience data for updating likes
+        currentMarker = marker;
+        currentInfoWindow = infoWindow;
+        currentExperience = exp;
       });
 
       marker.addListener("mouseover", () => {
@@ -237,6 +247,50 @@ async function likeExperience(experienceId) {
     await updateDoc(docRef, {
       likes: increment(1)
     });
+    
+    // Close the info window
+    if (currentInfoWindow) {
+      currentInfoWindow.close();
+    }
+    
+    // Small delay to ensure Firestore has updated
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Fetch updated experience data
+    const updatedDoc = await getDocs(collection(window.db, 'experiences'));
+    let updatedExperience = null;
+    
+    updatedDoc.forEach((docSnap) => {
+      if (docSnap.id === experienceId) {
+        updatedExperience = { ...docSnap.data(), id: docSnap.id };
+      }
+    });
+    
+    // Update stored experience with new like count
+    if (updatedExperience) {
+      currentExperience.likes = updatedExperience.likes;
+    }
+    
+    if (currentInfoWindow && currentMarker && currentExperience) {
+      // Reopen the info window with updated like count
+      let imageHtml = '';
+      const mapillaryImage = await fetchMapillaryImage(currentExperience.lat, currentExperience.lng, currentExperience.year, currentExperience.month);
+      if (mapillaryImage) {
+        imageHtml = `<img src="${mapillaryImage.thumb_1024_url}" style="width: 100%; border-radius: 8px 8px 0 0; cursor: pointer;" onclick="openStreetView('${mapillaryImage.id}')" title="Click to open street view">`;
+      }
+      
+      const updatedLikeButton = `<button onclick="likeExperience('${currentExperience.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;"> Like (${currentExperience.likes || 0})</button>`;
+      
+      currentInfoWindow.setContent(
+        `<div class="info-content">
+          ${imageHtml}
+          <strong>${currentExperience.year}-${String(currentExperience.month).padStart(2, '0')}</strong><br>
+          <em>${currentExperience.comment}</em><br>
+          ${updatedLikeButton}
+        </div>`
+      );
+      currentInfoWindow.open(currentMapForSelection, currentMarker);
+    }
   } catch (error) {
     console.error('Error liking memory:', error);
     alert('Error liking memory: ' + error.message);
