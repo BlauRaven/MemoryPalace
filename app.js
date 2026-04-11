@@ -70,6 +70,9 @@ async function initMap() {
               <div style="font-size: 14px; color: #222; line-height: 1.4;">
                 ${exp.comment}
               </div>
+              <div style="margin-top: 8px; font-size: 12px; color: #888;">
+                ♥ ${exp.likes.toLocaleString()} likes
+              </div>
             </div>`;
           infoWindow.setContent(content);
           infoWindow.open(map, marker);
