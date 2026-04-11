@@ -188,8 +188,6 @@ async function loadExperiencesFromFirestore(map, infoWindow) {
         }
       });
 
-      const likeButton = `<button onclick="likeExperience('${exp.id}')" style="background: #000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;"> Like (${exp.likes || 0})</button>`;
-
       marker.addListener('click', async () => {
         let imageHtml = '';
         const mapillaryImage = await fetchMapillaryImage(exp.lat, exp.lng, exp.year, exp.month);
